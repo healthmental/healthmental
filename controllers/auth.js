@@ -3,9 +3,10 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const User = require('../models/user')
 const Doctor = require("../models/doctor")
+const cloud = require('../config/cloudinary')
 
-exports.signupUser = async (req,permission, res, next) => {
-    
+exports.signupUser = async (req, permission, res, next) => {
+
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const name = firstName+ ' ' + lastName;
@@ -18,8 +19,11 @@ exports.signupUser = async (req,permission, res, next) => {
     const contactRelation = req.body.contactRelation;
     const medicalHistory = req.body.medicalHistory;
     const sessions = req.body.sessions;
-        
+    
+
     try {
+        let image = req.body.image;
+        console.log(req.file.path,req.file);
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             const error = new Error('Validation failed.')
@@ -28,6 +32,10 @@ exports.signupUser = async (req,permission, res, next) => {
             throw error;
         }
         const hashedPW = await bcrypt.hash(password, 12);
+
+        const imageResult = await cloud.uploads(req.file.path)
+        console.log(imageResult, image)
+        image = imageResult.url
 
         const user = new User({
             name: name,
@@ -40,10 +48,11 @@ exports.signupUser = async (req,permission, res, next) => {
             contactRelation: contactRelation,
             medicalHistory: medicalHistory,
             sessions: sessions,
-            permission: permission
+            permission: permission,
+            image: image
         })
         const result = await user.save();
-        res.status(201).json({ message: 'User created!', userId: result._id });
+        res.status(201).json({ message: 'User created!', userId: result._id  });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;

@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 8080;
 app.use(bodyParser.json());
 // app.use(morgan("dev"));
 
+// serve images in directory images
+app.use("/images", express.static(path.join(__dirname, 'images')));
+
 //CORS set
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');

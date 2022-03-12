@@ -3,13 +3,14 @@ const { body } = require("express-validator");
 
 const User = require('../models/user')
 const authController = require('../controllers/auth')
-
+const multerConfig = require('../config/multer')
 const router = express.Router();
 
 // // http://localhost:8080/auth/signup/User  method "POST"
 // https://healthmental.herokuapp.com/auth/signup/User  [Api-endpoint]
 router.post(
   "/signup/User",
+  multerConfig.single('profileImage'),
   [
     body("firstName")
       .trim()
@@ -54,7 +55,7 @@ router.post(
       .isEmpty(),
   ],
   async (req ,res ,next) => {
-    await authController.signupUser(req , "User" , res , next)
+    await authController.signupUser(req, "User", res , next)
   }
   
 );
